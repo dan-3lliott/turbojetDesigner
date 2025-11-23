@@ -547,6 +547,11 @@ function turbine_stage = postProcess(x, R, To1, Po1, a1, Cp, ...
     % work info
     turbine_stage.Wdot      = Wdot;
     turbine_stage.Wdot_req  = Wout;
+
+    turbine_stage.bladeARr = bladeARr;
+    turbine_stage.bladeARn = bladeARn;
+    turbine_stage.chi3 = chi3;
+    turbine_stage.a1 = a1;
 end
 
 function d = cartersDeviation(flowAngleDelta, sigma)

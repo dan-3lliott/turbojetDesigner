@@ -29,4 +29,6 @@ function dummy_comp_stage = dummy_stage(properties, compressor)
     dummy_comp_stage.sigmaBend = 0;
     dummy_comp_stage.Po2 = 0;
     dummy_comp_stage.Wdot = 0;
+    dummy_comp_stage.a1 = 0;
+    dummy_comp_stage.degR = 0;
 end

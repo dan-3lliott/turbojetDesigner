@@ -39,7 +39,7 @@ function combustor_out = comb(givens, properties, combustor, compressor)
         %unpack design variables and inputs
         [M3e] = unpack(x);
         %calculate fuel ratio
-        combustor.f = ((properties.To4 - properties.To3)/((combustor.dhR/properties.Cp_comb) - properties.To4))/combustor.etaComb; %double check etaComb application
+        combustor.f = ((properties.To4 - properties.To3)/((combustor.dhR*combustor.etaComb/properties.Cp_comb) - properties.To4)); %double check etaComb application
         %calculate diffuser inlet dims - assuming == comp OGV exit
         combustor.A3 = pi*(compressor.rt^2 - compressor.stages(end).rhs^2);
         combustor.rmi = (compressor.rt + compressor.stages(end).rhs)/2;
@@ -105,12 +105,12 @@ function combustor_out = comb(givens, properties, combustor, compressor)
         combustor.PL = combustor.Po4 * (combustor.TL/properties.To4)^(properties.gamma_comb/(properties.gamma_comb-1)); %static pressure inside of liner
 
         czA = sym('czA');
-        TA = properties.To3 - ((czA^2)/(2*properties.Cp_air));
-        PA = properties.Po3 * (TA/properties.To3)^(properties.gamma_air/(properties.gamma_air-1));
+        TA = combustor.To3e - ((czA^2)/(2*properties.Cp_air));
+        PA = combustor.Po3e * (TA/combustor.To3e)^(properties.gamma_air/(properties.gamma_air-1));
         implicitSol = (PA/(properties.R_air*TA)) == ((1-combustor.msn)*givens.mdot_air)/((combustor.A3e-combustor.AL)*czA);
         combustor.czA = double(vpasolve(implicitSol, czA, [0 inf]));
-        combustor.TA = properties.To3 - ((combustor.czA^2)/(2*properties.Cp_air));
-        combustor.PA = properties.Po3 *(combustor.TA/properties.To3)^(properties.gamma_air/(properties.gamma_air-1));
+        combustor.TA = combustor.To3e - ((combustor.czA^2)/(2*properties.Cp_air));
+        combustor.PA = combustor.Po3e *(combustor.TA/combustor.To3e)^(properties.gamma_air/(properties.gamma_air-1));
 
         combustor.linerStiffness = (combustor.PA - combustor.PL)/combustor.PL;
 
@@ -131,6 +131,7 @@ function combustor_out = comb(givens, properties, combustor, compressor)
         combustor.ro3e = 2*combustor.rme - combustor.ri3e;
 
         %pass analyzed combustor back out as return
+        combustor.M3e = M3e;
         combustor_result = combustor;
     end
 

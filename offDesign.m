@@ -26,7 +26,7 @@ function od = offDesign(givens, properties, diffuser, compressor, combustor, tur
 
     %off-design compressor pressure ratio
     od.To3 = od.To2.*(1 + ((od.To4./od.To2)./(properties.To4/properties.To2)).*(compressor.To3/properties.To2 - 1)); %assumes that 1+f is essentially the same
-    od.Pr_comp = (od.To3./od.To2).^((properties.gamma_air*compressor.eta)/(properties.gamma_air-1));
+    od.Pr_comp = (od.To3./od.To2).^((properties.gamma_air*compressor.etaPoly)/(properties.gamma_air-1));
     
     %off-design corrected mass flow
     mc2_d = givens.mdot_air*sqrt(properties.To2/Tref)/(properties.Po2/Pref);

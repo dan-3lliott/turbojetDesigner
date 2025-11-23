@@ -238,6 +238,8 @@ function compressor_stage = postProcess(out, mdot, Cp, To1, Po1, gamma, R, wbarf
     compressor_stage.sigmaBend = 0;
     compressor_stage.Po2 = 0;
     compressor_stage.Wdot = 0;
+    compressor_stage.a1 = a1;
+    compressor_stage.degR = 0;
 end
 
 %blade count rounding function

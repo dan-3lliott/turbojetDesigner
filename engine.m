@@ -58,7 +58,7 @@ combustor.rdDLr = 0.25; %ratio of dump radius to liner depth - minimizing length
 combustor.Ar_prediff = 1.3; %prediffuser area ratio, manually select
 combustor.theta = 10; %deg
 combustor.rmr = 0.9; %mean radius ratio from compressor -> combustor, manually select
-combustor.ALr = 0.375; %liner area ratio, manually select to target stiffness
+combustor.ALr = 0.8; %liner area ratio, manually select to target stiffness
 
 %assumptions - turbine
 turbine.taperRatio = 0.5;
@@ -167,6 +167,11 @@ function [out, thrust, finalEngine] = optimizeEngine(givens, properties, diffuse
             %cz now chosen inside first_turb_stage (as DV), not from compressor
             turbine_last = turb(0, turbine.Nstages, compressor_last.N, givens, properties, turbine);
             turbine_last.ogv = ogv_turb(givens, properties, turbine, turbine_last.allStages(end));
+            %need to calculate overall efficiency now
+            num = (turbine_last.ogv.To_out - properties.To4);
+            term1 = -1 + (turbine_last.ogv.Po_out/properties.Po4)^((properties.gamma_comb-1)/properties.gamma_comb);
+            den = properties.To4*term1;
+            turbine_last.eta = num/den;
 
             %=====NOZZLE=====
             nozzle.To5   = turbine_last.ogv.To_out;

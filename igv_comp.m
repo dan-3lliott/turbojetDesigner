@@ -223,6 +223,8 @@ function compressor_stage = postProcess(x, R, To1, Po1, cz, a1, Cp, gamma, mdot,
     compressor_stage.sigmaBend = 0;
     compressor_stage.Po2 = 0;
     compressor_stage.Wdot = 0;
+    compressor_stage.a1 = a1;
+    compressor_stage.degR = 0;
 end
 
 function d = cartersDeviation(flowAngleDelta, sigma)

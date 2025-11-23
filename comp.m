@@ -36,8 +36,9 @@ function compressor = comp(Pr1_comp, diffuser, givens, properties, compressor)
     compressor.Po3 = compressorStages(end).Po3;
     compressor.To3 = compressorStages(end).To3;
 
-    %total efficiency for output
-    compressor.eta = ((properties.gamma_air-1)/properties.gamma_air)*log(compressor.Pr)/log(compressor.To3/properties.To2);
+    %efficiencies for output
+    compressor.etaPoly = ((properties.gamma_air-1)/properties.gamma_air)*log(compressor.Pr)/log(compressor.To3/properties.To2);
+    compressor.eta = ((compressor.Pr^((properties.gamma_air-1)/properties.gamma_air))-1)/(compressor.To3/properties.To2 - 1);
 
     %store compressor stages in compressor structure
     compressor.stages = compressorStages;

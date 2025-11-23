@@ -12,7 +12,7 @@ function diffuser = diffu(diffuser, givens, properties, compressor)
     num = (1+((properties.gamma_air-1)/2)*diffuser.M1^2);
     den = (1+((properties.gamma_air-1)/2)*diffuser.M2^2);
     term2 = (num/den)^((properties.gamma_air+1)/(2*(properties.gamma_air-1)));
-    diffuser.A1 = diffuser.A2*term1*term2;
+    diffuser.A1 = diffuser.A2*diffuser.Rd*term1*term2;
     %calculate diffuser inlet diameter
     diffuser.D1 = 2*sqrt(diffuser.A1/pi);
     %define diffuser cz2

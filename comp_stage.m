@@ -64,7 +64,7 @@ function etaST = optimizeStage(x, cz, To1, Po1, gamma, R, Cp, wbarfactor, a3a1of
     [rhr, rmr, phi] = rotorRadii(rt, a1, mdot, cz, To1, Po1, Cp, gamma, R, N);
 
     %perform velocity triangle analysis
-    [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp);
+    [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2, T3] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp);
 
     %calculate pressure ratios
     [~, ~, wbarrr, wbars, Prr, Prs] = dfAndPr(a2, a3, b1, b2, sigmaR, sigmaS, wbarfactor, gamma, M1, M1rel, M2, M2rel);
@@ -82,7 +82,7 @@ end
     [rhr, rmr, phi] = rotorRadii(rt, a1, mdot, cz, To1, Po1, Cp, gamma, R, N);
 
     %perform velocity triangle analysis
-    [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp);
+    [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2, T3] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp);
 
     %M1rel max constraint
     c(1) = M1rel - M1relmax;
@@ -178,7 +178,7 @@ end
 
 %velocity triangle analysis function assuming constant axial velocity
 %returns flow angles and mach numbers for pressure ratio calcs
-function [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp)
+function [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2, T3] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp)
      %rotor inlet - casing reference
     ctheta1 = cz*tand(a1);
     c1 = ctheta1/sind(a1);
@@ -248,7 +248,7 @@ function [chi1, chi2r, chi2s, chi3] = metalAngles(i, out, m, To1, gamma, R, Cp, 
     [rhr, rmr, phi] = rotorRadii(rt, a1, mdot, cz, To1, Po1, Cp, gamma, R, N);
 
     %rerun velocity triangle analysis
-    [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp);
+    [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2, T3] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp);
     
     %calculate chi1, chi2s using optimum incidence
     chi1 = b1 + i;
@@ -268,7 +268,7 @@ function compressor_stage = postProcess(out, etaST, mdot, Cp, To1, Po1, cz, gamm
     [rhr, rmr, phi] = rotorRadii(rt, a1, mdot, cz, To1, Po1, Cp, gamma, R, N);
 
     %rerun velocity triangle analysis
-    [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp);
+    [a2, a3, b1, b2, M1, M1rel, M2, M2rel, M3, T1, T2, To2, T3] = velocityTriangle(cz, a1, a3a1offset, psi, phi, To1, gamma, R, Cp);
 
     %rerun diffusion factor and pressure ratio calcs
     [Dfr, Dfs, wbarr, wbars, Prr, Prs] = dfAndPr(a2, a3, b1, b2, sigmaR, sigmaS, wbarfactor, gamma, M1, M1rel, M2, M2rel);
@@ -343,6 +343,8 @@ function compressor_stage = postProcess(out, etaST, mdot, Cp, To1, Po1, cz, gamm
     compressor_stage.sigmaBend = sigmaBend;
     compressor_stage.Po2 = Po2;
     compressor_stage.Wdot = Wdot;
+    compressor_stage.a1 = a1;
+    compressor_stage.degR = (T2 - T1) / (T3 - T1);
 end
 
 %blade count rounding function

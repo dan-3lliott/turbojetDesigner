@@ -65,35 +65,73 @@ function engine = saveEngine(givens, properties, diffuser, compressor, combustor
     %diffuser
     casing_radii = [diffuser.D1/2];
     hub_radii = [0];
+    x_pos = [0 (compressor.rt - diffuser.D1/2)/tand(10)];
+    %compressor casing - super simple
+    casing_radii = [casing_radii ones(1,(2*length(compressor.stages))).*compressor.rt];
+    %igv
+    hub_radii = [hub_radii compressor.stages(1).rhs];
+    nextX = x_pos(end) + ((compressor.rt - compressor.stages(1).rhs)/compressor.stages(1).bladeARs)*abs(cosd(compressor.stages(1).a3 - compressor.stages(1).a2));
+    x_pos = [x_pos nextX];
+    hub_radii = [hub_radii compressor.stages(1).rhs];
+    nextX = x_pos(end) + ((compressor.rt - compressor.stages(1).rhs)/compressor.stages(1).bladeARs)*abs(cosd(compressor.stages(1).a3 - compressor.stages(1).a2));
+    x_pos = [x_pos nextX];
     %compressor
-    casing_radii = [casing_radii ones(1,2*length(compressor.stages)).*compressor.rt];
-    for i = 1:length(compressor.stages);
+    for i = 2:(length(compressor.stages)-1)
+        nextX = x_pos(end) + ((compressor.rt - compressor.stages(i).rhr)/compressor.stages(i).bladeARr)*abs(cosd(compressor.stages(i).a2 - compressor.stages(i).a1));
+        x_pos = [x_pos nextX];
         hub_radii = [hub_radii compressor.stages(i).rhr compressor.stages(i).rhs];
+        nextX = x_pos(end) + ((compressor.rt - compressor.stages(i).rhs)/compressor.stages(i).bladeARs)*abs(cosd(compressor.stages(i).a3 - compressor.stages(i).a2));
+        x_pos = [x_pos nextX];
     end
+    %ogv
+    hub_radii = [hub_radii compressor.stages(end).rhs];
+    nextX = x_pos(end) + ((compressor.rt - compressor.stages(end).rhs)/compressor.stages(end).bladeARs)*abs(cosd(compressor.stages(end).a3 - compressor.stages(end).a2));
+    x_pos = [x_pos nextX];
+    hub_radii = [hub_radii compressor.stages(end).rhs];
+    nextX = x_pos(end) + ((compressor.rt - compressor.stages(end).rhs)/compressor.stages(end).bladeARs)*abs(cosd(compressor.stages(end).a3 - compressor.stages(end).a2));
+    x_pos = [x_pos nextX];
     %combustor
-    casing_radii = [casing_radii combustor.ro3e];
-    hub_radii = [hub_radii combustor.ri3e];
+    x_pos(end) = x_pos(end) + combustor.L_diff;
+    casing_radii = [casing_radii combustor.ro3e combustor.ro3e];
+    hub_radii = [hub_radii combustor.ri3e combustor.ri3e];
+    x_pos = [x_pos x_pos(end) + (combustor.L - combustor.L_diff) x_pos(end) + (combustor.L - combustor.L_diff + 0.015)];
     %turbine
     for i = 1:length(turbine.allStages)
         casing_radii = [casing_radii turbine.allStages(i).rtn turbine.allStages(i).rtr];
         hub_radii = [hub_radii turbine.allStages(i).rh turbine.allStages(i).rh];
+        nextX = x_pos(end) + ((turbine.allStages(i).rtn - turbine.allStages(i).rh)/turbine.allStages(i).bladeARn)*abs(cosd(turbine.allStages(i).a2 - turbine.allStages(i).a1));
+        x_pos = [x_pos nextX];
+        nextX = x_pos(end) + ((turbine.allStages(i).rtr - turbine.allStages(i).rh)/turbine.allStages(i).bladeARr)*abs(cosd(turbine.allStages(i).a3 - turbine.allStages(i).a2));
+        x_pos = [x_pos nextX];
     end
+    %turb ogv
     casing_radii = [casing_radii turbine.ogv.rtn];
     hub_radii = [hub_radii turbine.ogv.rhn];
+    nextX = x_pos(end) + ((turbine.ogv.rtn - turbine.ogv.rhn)/turbine.ogv.bladeARn)*abs(cosd(turbine.ogv.a_out - turbine.ogv.a_in));
+    x_pos = [x_pos nextX];
+    casing_radii = [casing_radii turbine.ogv.rtn];
+    hub_radii = [hub_radii turbine.ogv.rhn];
+    nextX = x_pos(end) + ((turbine.ogv.rtn - turbine.ogv.rhn)/turbine.ogv.bladeARn)*abs(cosd(turbine.ogv.a_out - turbine.ogv.a_in));
+    rnozz = sqrt(nozzle.Ae/pi);
+    x_pos = [x_pos (nextX + (turbine.ogv.rtn - rnozz)/tand(20))];
     %nozzle
     casing_radii = [casing_radii sqrt(nozzle.Ae/pi)];
     hub_radii = [hub_radii 0];
 
     x_stations = (1:length(hub_radii)) - 1;
+
     figure
     hold on
-    plot(x_stations, casing_radii, 'Color', ([138, 43, 226]./255));
-    plot(x_stations, -casing_radii, 'Color', 'blue violet');
-    x_stations(1) = 1;
-    x_stations(end) = x_stations(end-1);
-    plot(x_stations, hub_radii, 'Color', 'bluey green');
-    plot(x_stations, -hub_radii, 'Color', 'bluey green');
+    plot(x_pos, casing_radii, 'Color', ([138, 43, 226]./255));
+    plot(x_pos, -casing_radii, 'Color', ([138, 43, 226]./255));
+    x_pos(1) = x_pos(2);
+    x_pos(end) = x_pos(end-1);
+    plot(x_pos, hub_radii, 'Color', ([34, 154, 109]./255));
+    plot(x_pos, -hub_radii, 'Color', ([34, 154, 109]./255));
     hold off
+    xlim([0 1.5]);
+    xlabel('x (m)');
+    ylabel('y (m)');
 
     %output data files for each structure
     writetable(struct2table(diffuser), 'outputs/diffuser.xlsx');
